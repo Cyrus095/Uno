@@ -9,16 +9,17 @@ MKDIR:= mkdir -p
 # Directories
 
 BINDIR:= ../bin
-SRCDIR:= ./
+SRCDIR:= .
 INCDIR:= ../include
 OBJDIR:= ../obj
+LIBDIR:= ../lib
 
 # -------------------------------------------------------------
 # Compiler
 
 CC:= g++
 CFLAGS:= -Wall -O3 -std=c++11 -pedantic -Wno-unused-result
-LIBS:=
+LIBS:= -L$(LIBDIR) -lsfml-network -lsfml-system
 INC:= -I$(INCDIR)
 
 # -------------------------------------------------------------

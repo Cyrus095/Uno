@@ -3,8 +3,10 @@ bin/*
 obj/*
 
 # Installed files/folders
-include/Catch/*
+lib/
+include/SFML/*
 
 # Other files
 *~
 *.dropbox
+SFML*
