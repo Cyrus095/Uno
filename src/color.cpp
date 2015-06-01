@@ -53,7 +53,6 @@ std::string colorToStr(Color color)
             return "\033[32mGreen\033[0m";
         case BLUE:
             return "\033[34mBlue\033[0m";
-
         default:
             return "";  // Color isn't valid
     }

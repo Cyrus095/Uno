@@ -1,5 +1,8 @@
-#include <iostream>  // std::cout
-#include "game.hpp"
+#include <iostream>     // std::cout
+#include <cstring>      // strcmp()
+#include "offline.hpp"
+#include "client.hpp"
+#include "server.hpp"
 
 // Shows how to use the program, leaving if afterwards
 static void usage(char const *name);
@@ -8,17 +11,28 @@ static void usage(char const *name);
 
 int main(int argc, char const *argv[])
 {
-    if (argc < 2) {
+    if (argc < 3) {
         usage(argv[0]);
     }
 
-    uint numPlayers = atoi(argv[1]);
-    if (numPlayers < 2 or numPlayers > 12) {
-        usage(argv[0]);
+    if (strcmp(argv[1], "-c") == 0) {
+        unsigned short port = atoi(argv[2]);
+        Client client("localhost", port);
     }
 
-    Game game(numPlayers);
-    game.play();
+    if (strcmp(argv[1], "-s") == 0) {
+        unsigned short port = atoi(argv[2]);
+        Server server(port);
+    }
+
+    if (strcmp(argv[1], "-l") == 0) {
+        uint numPlayers = atoi(argv[2]);
+        if (numPlayers < 2 or numPlayers > 12) {
+            usage(argv[0]);
+        }
+        Offline offline(numPlayers);
+        offline.run();
+    }
 
     return 0;
 }

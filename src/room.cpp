@@ -1,14 +1,29 @@
+#include <iostream>  // std::cout
 #include "room.hpp"
 
 /*-----------------------------------------------------------*/
 
 Room::~Room()
 {
-    for (uint i = 0; i < plDeq.size(); i++) {
-        delete plDeq.at(i);
+    while (not plDeq.empty()) {
+        Player *player = plDeq.front();
+        plDeq.pop_front();
+        delete player;
     }
 
     plDeq.clear();
+}
+
+/*-----------------------------------------------------------*/
+
+void Room::print()
+{
+    for (uint i = 0; i < plDeq.size(); i++) {
+        Player *player = plDeq.at(i);
+        std::cout << (i+1) << ") " << player->getName();
+        std::cout << " [" << player->handSize() << "]";
+        std::cout << std::endl;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -20,7 +35,7 @@ uint Room::size()
 
 /*-----------------------------------------------------------*/
 
-void Room::insert(Player *player)
+void Room::addPlayer(Player *player)
 {
     plDeq.push_back(player);
 }
@@ -54,11 +69,15 @@ Player * Room::removePlayer(uint position)
 
 Room& Room::operator =(Room a)
 {
-    for (uint i = this->size(); i >= 0; i--) {
+    while (this->size() > 0) {
         this->removePlayer(0);
     }
 
-    for (uint i = 0; i < a.size(); i++) {
-        this->insert(a.getPlayer(i));
+    while (a.size() > 0) {
+        Player *player = a.getPlayer(0);
+        this->addPlayer(player);
+        a.removePlayer(0);
     }
+
+    return *this;
 }

@@ -3,6 +3,14 @@
 
 /*-----------------------------------------------------------*/
 
+Card::Card()
+{
+    this->color = COLOR_MAX;
+    this->value = VALUE_MAX;
+}
+
+/*-----------------------------------------------------------*/
+
 Card::Card(Color color, Value value)
 {
     this->color = color;
@@ -13,12 +21,22 @@ Card::Card(Color color, Value value)
 
 void Card::print()
 {
-    if (value == WILD or value == WILD_FOUR) {
-        std::cout << valueToStr(value) << std::endl;
-    }
-    else {
-        std::cout << colorToStr(color) << " " << valueToStr(value) << std::endl;
-    }
+    std::cout << colorToStr(color) << " " << valueToStr(value);
+    std::cout << std::endl;
+}
+
+/*-----------------------------------------------------------*/
+
+void Card::setColor(Color color)
+{
+    this->color = color;
+}
+
+/*-----------------------------------------------------------*/
+
+void Card::setValue(Value value)
+{
+    this->value = value;
 }
 
 /*-----------------------------------------------------------*/

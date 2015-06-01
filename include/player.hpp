@@ -1,10 +1,14 @@
 #pragma once
 
-#include <cstdlib>  // uint
+#include <cstdlib>   // uint
 #include <deque>
 #include "card.hpp"
 
-/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*
+ *
+ *  Holds the class that represents an in-game player.
+ *
+ */
 
 class Player
 {
@@ -13,6 +17,9 @@ class Player
         std::deque<Card *> hand;
 
     public:
+        // Creates an empty Player. Use with caution!
+        Player();
+
         // Creates a Player with the specified name
         Player(std::string name);
 
@@ -20,7 +27,7 @@ class Player
         ~Player();
 
         // Returns the number of cards the Player holds
-        uint size();
+        uint handSize();
 
         // Prints all Cards owned by Player
         void print();
@@ -39,6 +46,9 @@ class Player
          *  If position is out of bounds, returns NULL.
          */
         Card * removeCard(uint position);
+
+        // Sets the Player's name to the specified argument
+        void setName(std::string name);
 
         // Returns the Player's name
         std::string getName();

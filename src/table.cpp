@@ -5,7 +5,9 @@
 Table::~Table()
 {
     while (not pile.empty()) {
-        delete removeEnd();
+        Card *card = pile.front();
+        pile.pop();
+        delete card;
     }
 }
 
@@ -27,15 +29,25 @@ void Table::add(Card *card)
 
 Card * Table::getTop()
 {
-    return pile.back();
+    Card *card = NULL;
+
+    if (not pile.empty()) {
+        card = pile.back();
+    }
+
+    return card;
 }
 
 /*-----------------------------------------------------------*/
 
 Card * Table::removeEnd()
 {
-    Card *card = pile.front();
-    pile.pop();
+    Card *card = NULL;
+
+    if (not pile.empty()) {
+        card = pile.front();
+        pile.pop();
+    }
 
     return card;
 }

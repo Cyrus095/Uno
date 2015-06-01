@@ -3,12 +3,16 @@
 #include <deque>
 #include "player.hpp"
 
-/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*
+ *
+ *  Defines the Room class, responsible for storing all Players.
+ *
+ */
 
 class Room
 {
     private:
-        std::deque<Player *> plDeq;  // Players participating in Room
+        std::deque<Player *> plDeq;
     
     public:
         // Clears memory used by Room
@@ -17,8 +21,11 @@ class Room
         // Returns number of Players in Room
         uint size();
 
+        // Prints names of all Players inside Room
+        void print();
+
         // Inserts Player in Room
-        void insert(Player *player);
+        void addPlayer(Player *player);
 
         /*
          *  Returns the Player in the specified position.

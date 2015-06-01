@@ -19,7 +19,7 @@ LIBDIR:= ../lib
 
 CC:= g++
 CFLAGS:= -Wall -O3 -std=c++11 -pedantic -Wno-unused-result
-LIBS:= -L$(LIBDIR) -lsfml-network -lsfml-system
+LIBS:= -lGL -L$(LIBDIR) -lsfml-network -lsfml-system
 INC:= -I$(INCDIR)
 
 # -------------------------------------------------------------

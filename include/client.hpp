@@ -1,31 +1,29 @@
 #pragma once
 
-#include "online.hpp"
 #include "game.hpp"
 #include "room.hpp"
+#include "packet.hpp"
 
 /*-----------------------------------------------------------*/
 
 class Client
 {
     private:
-        Player *myself;
+        std::string name;
 
-        sf::TcpSocket server;
         Game *game;
         Room *room;
 
+        sf::TcpSocket server;
+
         // Starts Client's game loop
-        void loop();
+        void run();
 
         // Updates the Client's Room data
         void updateRoom(Room svRoom);
 
-        /*
-         *  Updates the Client's game data. If the match has ended,
-         *  returns 'true'.
-         */
-        bool updateGame(Game svGame);
+        // Makes client play his turn, sending data to server afterwards
+        void clientTurn();
 
     public:
         // Connects Client to server using the specified values

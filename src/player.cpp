@@ -3,6 +3,13 @@
 
 /*-----------------------------------------------------------*/
 
+Player::Player()
+{
+    this->name = "";
+}
+
+/*-----------------------------------------------------------*/
+
 Player::Player(std::string name)
 {
     this->name = name;
@@ -12,8 +19,10 @@ Player::Player(std::string name)
 
 Player::~Player()
 {
-    for (uint i = 0; i < hand.size(); i++) {
-        delete hand.at(i);
+    while (not hand.empty()) {
+        Card *card = hand.front();
+        hand.pop_front();
+        delete card;
     }
 
     hand.clear();
@@ -21,7 +30,7 @@ Player::~Player()
 
 /*-----------------------------------------------------------*/
 
-uint Player::size()
+uint Player::handSize()
 {
     return hand.size();
 }
@@ -66,6 +75,13 @@ Card * Player::removeCard(uint position)
     }
 
     return card;
+}
+
+/*-----------------------------------------------------------*/
+
+void Player::setName(std::string name)
+{
+    this->name = name;
 }
 
 /*-----------------------------------------------------------*/

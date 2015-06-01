@@ -20,11 +20,9 @@ typedef enum color
 
 /*-----------------------------------------------------------*/
 
-// Definition of ++ operator for Color
 Color &operator++(Color &c);
 Color  operator++(Color &c, int);
 
-// Definition of -- operator for Color
 Color &operator--(Color &c);
 Color  operator--(Color &c, int);
 
