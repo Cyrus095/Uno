@@ -8,6 +8,7 @@
 class Server
 {
     private:
+        std::string name;
         Game *game;
         Manager *manager;
         uint turnCounter = 0;
@@ -25,9 +26,11 @@ class Server
 
         bool serverTurn();
 
+        void display();
+
     public:
         // Creates a server with the specified port number
-        Server(unsigned short port);
+        Server(std::string name, unsigned short port);
 
         // Closes server and clears used memory
         ~Server();

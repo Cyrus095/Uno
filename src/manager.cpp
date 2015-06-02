@@ -58,6 +58,20 @@ sf::TcpSocket * Manager::getSocket(uint position)
 
 /*-----------------------------------------------------------*/
 
+sf::TcpSocket * Manager::removeSocket(uint position)
+{
+    sf::TcpSocket *socket = NULL;;
+
+    if (position <= dq.size()) {
+        socket = dq.at(position);
+        dq.erase(dq.begin() + position);
+    }
+
+    return socket;
+}
+
+/*-----------------------------------------------------------*/
+
 void Manager::setRoom(Room *r)
 {
     delete this->room;

@@ -24,14 +24,28 @@ class Room
         // Prints names of all Players inside Room
         void print();
 
-        // Inserts Player in Room
-        void addPlayer(Player *player);
+        /*
+         *  Inserts Player in Room if there is no other 
+         *  Player with the same name. If successful,
+         *  returns 'true'.  
+         */  
+
+        bool addPlayer(Player *player);
 
         /*
          *  Returns the Player in the specified position.
          *  If position is out of bounds, returns NULL.
          */
         Player * getPlayer(uint position);
+
+        /*
+         *  Returns the Player with the specified name.
+         *  If not found, returns NULL;
+         */
+        Player * getPlayer(std::string name);
+
+        // Returns the first Player found with no cards.
+        Player * getWinner();
 
         /*
          *  Removes and returns the Player in the specified position.

@@ -4,13 +4,14 @@
 
 /*-----------------------------------------------------------*/
 
-Server::Server(unsigned short port)
+Server::Server(std::string name, unsigned short port)
 {
+    this->name = name;
     game = new Game(true);
     manager = new Manager();
 
     // Initialize Server's Player
-    Player *myself = new Player("Mr. Server");
+    Player *myself = new Player(name);
     game->initPlayer(myself);
     manager->add(myself, NULL);
 
@@ -58,7 +59,11 @@ void Server::run()
         }
     }
 
-    std::cout << "GAME HAS ENDED!!!\n";
+    // Display final information and winner
+    display();
+    std::cout << std::endl;
+    std::cout << "### " << manager->getRoom()->getWinner()->getName();
+    std::cout << " won!" << std::endl;
 }
 
 /*-----------------------------------------------------------*/
@@ -113,6 +118,7 @@ bool Server::receiveData()
     Game *clGame = NULL;
     Room *clRoom = NULL;
 
+    display();
     for (uint i = 0; i < manager->size(); i++) {
         sf::TcpSocket *client = manager->getSocket(i);
         if (client == NULL) {
@@ -137,6 +143,21 @@ bool Server::receiveData()
                     delete clRoom;
                 }
             }
+            else {
+                std::cout << "Client " << manager->getRoom()->removePlayer(i)->getName();
+                std::cout << " disconnected!" << std::endl;
+                sf::TcpSocket *socket = manager->removeSocket(i);
+                selector.remove(*socket);
+                if (manager->size() <= 1) {
+                    std::cout << "Not enough players!" << std::endl;
+                    exit(42);
+                }
+                if (turnCounter == i) {
+                    (game->checkReverse() ? turnCounter ++ : turnCounter--);
+                    turnCounter %= manager->size();
+                }
+                return true;
+            }
         }
     }
 
@@ -148,11 +169,26 @@ bool Server::receiveData()
 bool Server::serverTurn()
 {
     if (turnCounter == 0) {
-        game->play(manager->getPlayer(0));
+        game->play(manager->getRoom()->getPlayer(name));
         (game->checkReverse() ? turnCounter ++ : turnCounter--);
         turnCounter %= manager->size();
         return true;
     }
 
     return false;
+}
+
+/*-----------------------------------------------------------*/
+
+void Server::display()
+{
+    Player *player = manager->getRoom()->getPlayer(name);
+
+    if (player == NULL) {
+        std::cerr << "You have not been found in Room!" << std::endl;
+        exit(30);
+    }
+
+    manager->getRoom()->print();
+    player->print();
 }

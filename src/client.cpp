@@ -3,9 +3,9 @@
 
 /*-----------------------------------------------------------*/
 
-Client::Client(sf::IpAddress ip, unsigned short port)
+Client::Client(std::string name, sf::IpAddress ip, unsigned short port)
 {
-    name = "Mister Client";
+    this->name = name;
     game = new Game();
     room = new Room();
 
@@ -38,50 +38,64 @@ void Client::run()
 
     // Infinite game loop
     while (not game->checkGameOver()) {
-        sf::Packet svData;
-        Game *svGame = NULL;
-        Room *svRoom = NULL;
-        bool myTurn;
-
-        if (server.receive(svData) == sf::Socket::Done) {
-            svGame = new Game();
-            svRoom = new Room();
-            if (svData >> *svGame >> *svRoom >> myTurn) {
-                delete game;
-                delete room;
-                game = svGame;
-                room = svRoom;
-                room->print();
-                std::cout << "Data received!\n";
-                if (myTurn and not game->checkGameOver()) {
-                    clientTurn();
-                }
-            }
-            else {
-                delete svGame;
-                delete svRoom;
-            }
+        if (receiveData() and not game->checkGameOver()) {
+            clientTurn();
         }
     }
 
-    // Search Room for winner
+    // Display final information and winner
+    display();
+    std::cout << std::endl;
+    std::cout << "### " << room->getWinner()->getName();
+    std::cout << " won!" << std::endl;
+}
+
+/*-----------------------------------------------------------*/
+
+bool Client::receiveData()
+{
+    sf::Packet svData;
+    Game *svGame = NULL;
+    Room *svRoom = NULL;
+    bool myTurn = false;
+
+    if (server.receive(svData) == sf::Socket::Done) {
+        svGame = new Game();
+        svRoom = new Room();
+        if (svData >> *svGame >> *svRoom >> myTurn) {
+            delete game;
+            delete room;
+            game = svGame;
+            room = svRoom;
+            std::cout << "Data received!" << std::endl;
+            display();
+        }
+        else {
+            std::cerr << "Error when receiving data!" << std::endl;
+            delete svGame;
+            delete svRoom;
+            server.disconnect();
+            exit(10);
+        }
+    }
+    else {
+        std::cout << "Connection lost!" << std::endl;
+        exit(400);
+    }
+
+    return myTurn;
 }
 
 /*-----------------------------------------------------------*/
 
 void Client::clientTurn()
 {
-    Player *player = NULL;
+    Player *player = room->getPlayer(name);
     sf::Packet data;
-
-    for (uint i = 0; i < room->size(); i++) {
-        if (room->getPlayer(i)->getName() == name) {
-            player = room->getPlayer(i);
-        }
-    }
 
     if (player == NULL) {
         std::cerr << "You have not been found in Room!" << std::endl;
+        server.disconnect();
         exit(30);
     }
 
@@ -90,4 +104,24 @@ void Client::clientTurn()
     if (server.send(data) == sf::Socket::Done) {
         std::cout << "Data sent to server!" << std::endl;
     }
+    else {
+        std::cout << "Connection lost!" << std::endl;
+        exit(321);
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+void Client::display()
+{
+    Player *player = room->getPlayer(name);
+
+    if (player == NULL) {
+        std::cerr << "You have not been found in Room!" << std::endl;
+        server.disconnect();
+        exit(30);
+    }
+
+    room->print();
+    player->print();
 }

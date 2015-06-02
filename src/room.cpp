@@ -35,9 +35,16 @@ uint Room::size()
 
 /*-----------------------------------------------------------*/
 
-void Room::addPlayer(Player *player)
+bool Room::addPlayer(Player *player)
 {
+    for (uint i = 0; i < plDeq.size(); i++) {
+        if (plDeq.at(i)->getName() == player->getName()) {
+            return false;
+        }
+    }
+
     plDeq.push_back(player);
+    return true;
 }
 
 /*-----------------------------------------------------------*/
@@ -49,6 +56,32 @@ Player * Room::getPlayer(uint position)
     }
 
     return plDeq.at(position);
+}
+
+/*-----------------------------------------------------------*/
+
+Player * Room::getPlayer(std::string name)
+{
+    for (uint i = 0; i < plDeq.size(); i++) {
+        if (plDeq.at(i)->getName() == name) {
+            return plDeq.at(i);
+        }
+    }
+
+    return NULL;
+}
+
+/*-----------------------------------------------------------*/
+
+Player * Room::getWinner()
+{
+    for (uint i = 0; i < plDeq.size(); i++) {
+        if (plDeq.at(i)->handSize() <= 0) {
+            return plDeq.at(i);
+        }
+    }
+
+    return NULL;
 }
 
 /*-----------------------------------------------------------*/

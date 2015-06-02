@@ -40,6 +40,12 @@ class Manager
          */
         sf::TcpSocket * getSocket(uint position);
 
+        /*
+         *  Removes and returns the socket in the specified position.
+         *  If position is out of bounds, returns NULL.
+         */
+        sf::TcpSocket * removeSocket(uint position);
+
         // Sets the Manager's Room as the specified argument
         void setRoom(Room *r);
 

@@ -11,18 +11,23 @@ static void usage(char const *name);
 
 int main(int argc, char const *argv[])
 {
+    std::string name;
+
     if (argc < 3) {
         usage(argv[0]);
     }
 
+    std::cout << "Type in your name: ";
+    std::cin  >> name;
+
     if (strcmp(argv[1], "-c") == 0) {
-        unsigned short port = atoi(argv[2]);
-        Client client("localhost", port);
+        unsigned short port = atoi(argv[3]);
+        Client client(name, argv[2], port);
     }
 
     if (strcmp(argv[1], "-s") == 0) {
         unsigned short port = atoi(argv[2]);
-        Server server(port);
+        Server server(name, port);
     }
 
     if (strcmp(argv[1], "-l") == 0) {
