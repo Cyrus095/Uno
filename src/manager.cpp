@@ -24,6 +24,13 @@ Manager::~Manager()
 
 /*-----------------------------------------------------------*/
 
+uint Manager::size()
+{
+    return room->size();
+}
+
+/*-----------------------------------------------------------*/
+
 void Manager::add(Player *player, sf::TcpSocket *socket)
 {
     room->addPlayer(player);
@@ -32,17 +39,18 @@ void Manager::add(Player *player, sf::TcpSocket *socket)
 
 /*-----------------------------------------------------------*/
 
-uint Manager::size()
+Player * Manager::getPlayer(uint position)
 {
-    return room->size();
+    // Room class can treat the "out of bounds" error
+    return room->getPlayer(position); 
 }
 
 /*-----------------------------------------------------------*/
 
-Player * Manager::getPlayer(uint position)
+Player * Manager::removePlayer(uint position)
 {
-    // Room class can treat the "out of range" error
-    return room->getPlayer(position); 
+    // Room class can treat the "out of bounds" error
+    return room->removePlayer(position);
 }
 
 /*-----------------------------------------------------------*/
@@ -83,4 +91,11 @@ void Manager::setRoom(Room *r)
 Room * Manager::getRoom()
 {
     return room;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator <<(sf::Packet& packet, Manager& manager)
+{
+    return packet << *manager.getRoom();
 }

@@ -20,10 +20,10 @@ class Game
         Table *table;
 
         // Game-specific parameters
-        bool skipped    = false;  // If 'true', Player will have turn skipped when playing
-        bool reversed   = true;   // For Reverse Card
-        uint drawCount  = 1;      // For draw-type Cards
-        bool gameOver   = false;  // Used for checking if a Player already won
+        bool skipped    = false;  // If 'true', Player will have his turn skipped
+        bool reversed   = true;   // Flag for playing order
+        uint drawCount  = 1;      // Draw 2 and Draw 4 stacking
+        bool gameOver   = false;  // Flag is 'true' if a Player already won
 
         // Reads specified Player's action
         uint readTurn(Player *current);
@@ -62,17 +62,8 @@ class Game
         // Makes the specified Player have his turn
         void play(Player *player);
 
-        void setSkip(bool skip);
-
-        void setGameOver(bool gameOver);
-
-        void setDrawCount(uint drawCount);
-
-        void setReverse(bool reverse);
-
-        void setDeck(Deck *d);
-
-        void setTable(Table *t);
+        // Prints information regarding the Game
+        void print();
 
         // Checks if next Player will be skipped
         bool checkSkip();
@@ -86,11 +77,40 @@ class Game
         // Returns if a Reverse card's effect is active
         bool checkReverse();
 
+        /* 
+         * -------------------------------------
+         *  Below methods are to be used only
+         *  for Packet sending and receiving!
+         * -------------------------------------
+         */
+
+        // Sets the 'skipped' parameter
+        void setSkip(bool skip);
+
+        // Sets the 'gameOver' parameter
+        void setGameOver(bool gameOver);
+
+        // Sets the 'drawCount' parameter
+        void setDrawCount(uint drawCount);
+
+        // Sets the 'reversed' parameter
+        void setReverse(bool reverse);
+
+        // Deletes current Deck, replacing it with the argument
+        void setDeck(Deck *deck);
+
+        // Deletes current Table, replacing it with the argument
+        void setTable(Table *table);
+
         // Returns current Deck
         Deck * getDeck();
 
         // Returns current Table
         Table * getTable();
 
-        Game& operator =(Game a);
+        Game& operator =(Game game);
 };
+
+// Operators for SFML Packets
+sf::Packet& operator <<(sf::Packet& packet, Game& game);
+sf::Packet& operator >>(sf::Packet& packet, Game& game);

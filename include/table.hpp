@@ -5,7 +5,7 @@
 
 /*-----------------------------------------------------------*
  *
- *  Represents the pile of cards already used by players.
+ *  Represents the pile of cards already played.
  *
  */
 
@@ -25,8 +25,8 @@ class Table
         void add(Card *card);
 
         /*
-         *  Returns the Table's topmost Card.
-         *  If empty, returns NULL.
+         *  Returns the topmost Card without removing it
+         *  from the Table. If Table is empty, returns NULL.
          */
         Card * getTop();
 
@@ -36,3 +36,7 @@ class Table
          */
         Card * removeEnd();
 };
+
+// Operators for SFML Packets
+sf::Packet& operator <<(sf::Packet& packet, Table table);
+sf::Packet& operator >>(sf::Packet& packet, Table& table);

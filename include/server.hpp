@@ -28,6 +28,8 @@ class Server
 
         void display();
 
+        void updateTurnCount();
+
     public:
         // Creates a server with the specified port number
         Server(std::string name, unsigned short port);

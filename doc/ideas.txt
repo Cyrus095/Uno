@@ -1,3 +1,0 @@
-Server should have a ClientList class, that holds:
-  - deque of TcpSockets of each client;
-  - deque of Players of each client.

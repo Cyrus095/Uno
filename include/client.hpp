@@ -2,7 +2,6 @@
 
 #include "game.hpp"
 #include "room.hpp"
-#include "packet.hpp"
 
 /*-----------------------------------------------------------*/
 

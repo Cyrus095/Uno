@@ -37,7 +37,7 @@ uint Player::handSize()
 
 /*-----------------------------------------------------------*/
 
-void Player::print()
+void Player::printHand()
 {
     for (uint i = 0; i < hand.size(); i++) {
         std::cout << (i+1) << ") ";
@@ -89,4 +89,38 @@ void Player::setName(std::string name)
 std::string Player::getName()
 {
     return name;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator <<(sf::Packet& packet, Player& player)
+{
+    packet << player.getName();
+    packet << static_cast<sf::Uint32>(player.handSize());
+
+    for (uint i = 0; i < player.handSize(); i++) {
+        packet << *player.getCard(i);
+    }
+
+    return packet;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator >>(sf::Packet& packet, Player& player)
+{
+    std::string name;
+    packet >> name;
+    player.setName(name);
+
+    sf::Uint32 size;
+    packet >> size;
+
+    for (sf::Uint32 i = 0; i < size; i++) {
+        Card *card = new Card();
+        packet >> *card;
+        player.addCard(card);
+    }
+
+    return packet;
 }

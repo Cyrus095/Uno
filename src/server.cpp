@@ -1,6 +1,5 @@
-#include <iostream>    // std::cout
+#include <iostream>    // std::cout, std::cerr
 #include "server.hpp"
-#include "packet.hpp"
 
 /*-----------------------------------------------------------*/
 
@@ -21,7 +20,8 @@ Server::Server(std::string name, unsigned short port)
     }
     selector.add(listener);
 
-    std::cout << "Server has been created!" << std::endl;
+    std::cout << "Server created!" << std::endl;
+    std::cout << "Binded to port " << port << std::endl;
     run();
 }
 
@@ -40,10 +40,10 @@ Server::~Server()
 void Server::run()
 {
     while (not game->checkGameOver()) {
-        manager->getRoom()->print();
         if (selector.wait()) {
             if (selector.isReady(listener)) {
                 if (addClient()) {
+                    manager->getRoom()->print();
                     sendData();
                 }
             }
@@ -81,7 +81,7 @@ bool Server::addClient()
             Player *player = new Player(name);
             manager->add(player, client);
             selector.add(*client);
-            std::cout << name << " connected to server!" << std::endl;
+            std::cout << name << " connected!" << std::endl;
             game->initPlayer(player);
             return true;
         }
@@ -108,7 +108,6 @@ void Server::sendData()
             std::cerr << "Error when sending info to client!" << std::endl;
         }
     }
-    std::cout << "Information sent to all clients!\n";
 }
 
 /*-----------------------------------------------------------*/
@@ -125,7 +124,6 @@ bool Server::receiveData()
             continue;
         }
         if (selector.isReady(*client)) {
-            std::cout << "Receiving data from " << manager->getPlayer(i)->getName() << std::endl;
             sf::Packet data;
             if (client->receive(data) == sf::Socket::Done) {
                 clGame = new Game();
@@ -134,8 +132,7 @@ bool Server::receiveData()
                     delete game;
                     game = clGame;
                     manager->setRoom(clRoom);
-                    (game->checkReverse() ? turnCounter ++ : turnCounter--);
-                    turnCounter %= manager->size();
+                    updateTurnCount();
                     return true;
                 }
                 else {
@@ -149,12 +146,11 @@ bool Server::receiveData()
                 sf::TcpSocket *socket = manager->removeSocket(i);
                 selector.remove(*socket);
                 if (manager->size() <= 1) {
-                    std::cout << "Not enough players!" << std::endl;
+                    std::cerr << "Not enough players!" << std::endl;
                     exit(42);
                 }
                 if (turnCounter == i) {
-                    (game->checkReverse() ? turnCounter ++ : turnCounter--);
-                    turnCounter %= manager->size();
+                    updateTurnCount();
                 }
                 return true;
             }
@@ -169,13 +165,22 @@ bool Server::receiveData()
 bool Server::serverTurn()
 {
     if (turnCounter == 0) {
+        display();
         game->play(manager->getRoom()->getPlayer(name));
-        (game->checkReverse() ? turnCounter ++ : turnCounter--);
-        turnCounter %= manager->size();
+        updateTurnCount();
+        display();
         return true;
     }
 
     return false;
+}
+
+/*-----------------------------------------------------------*/
+
+void Server::updateTurnCount()
+{
+    game->checkReverse() ? turnCounter++ : turnCounter--;
+    turnCounter %= manager->size();
 }
 
 /*-----------------------------------------------------------*/
@@ -189,6 +194,8 @@ void Server::display()
         exit(30);
     }
 
+    system("clear");
     manager->getRoom()->print();
-    player->print();
+    game->print();
+    player->printHand();
 }

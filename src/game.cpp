@@ -56,6 +56,7 @@ void Game::play(Player *player)
     }
 
     if (skipped) {
+        std::cout << "You have been skipped!" << std::endl;
         skipped = false;
         return;
     }
@@ -80,54 +81,32 @@ void Game::play(Player *player)
     }
 
     // Prompt for continue before advancing to next Player
-    std::cout << std::endl << std::endl;
-    std::cout << "Press Enter to continue... " << std::flush;
-    std::cin.ignore(std::numeric_limits <std::streamsize>::max(), '\n');
-    std::cin.ignore(std::numeric_limits <std::streamsize>::max(), '\n');
+    // std::cout << std::endl << std::endl;
+    // std::cout << "Press Enter to continue... " << std::flush;
+    // std::cin.ignore(std::numeric_limits <std::streamsize>::max(), '\n');
+    // std::cin.ignore(std::numeric_limits <std::streamsize>::max(), '\n');
 }
 
 /*-----------------------------------------------------------*/
 
-void Game::setSkip(bool skipped)
+void Game::print()
 {
-    this->skipped = skipped;
-}
+    std::cout << "(Game order: ";
+    if (reversed) {
+        std::cout << ">>)" << std::endl;
+    }
+    else {
+        std::cout << "<<)" << std::endl;
+    }
 
-/*-----------------------------------------------------------*/
+    std::cout << "\nTABLE CARD: ";
+    table->getTop()->print();
 
-void Game::setGameOver(bool gameOver)
-{
-    this->gameOver = gameOver;
-}
+    if (drawCount > 1) {
+        std::cout << "Draw Stack: +" << drawCount << std::endl;
+    }
 
-/*-----------------------------------------------------------*/
-
-void Game::setDrawCount(uint drawCount)
-{
-    this->drawCount = drawCount;
-}
-
-/*-----------------------------------------------------------*/
-
-void Game::setReverse(bool reversed)
-{
-    this->reversed = reversed;
-}
-
-/*-----------------------------------------------------------*/
-
-void Game::setDeck(Deck *d)
-{
-    delete this->deck;
-    deck = d;
-}
-
-/*-----------------------------------------------------------*/
-
-void Game::setTable(Table *t)
-{
-    delete this->table;
-    table = t;
+    std::cout << std::endl;
 }
 
 /*-----------------------------------------------------------*/
@@ -160,6 +139,50 @@ bool Game::checkReverse()
 
 /*-----------------------------------------------------------*/
 
+void Game::setSkip(bool skipped)
+{
+    this->skipped = skipped;
+}
+
+/*-----------------------------------------------------------*/
+
+void Game::setGameOver(bool gameOver)
+{
+    this->gameOver = gameOver;
+}
+
+/*-----------------------------------------------------------*/
+
+void Game::setDrawCount(uint drawCount)
+{
+    this->drawCount = drawCount;
+}
+
+/*-----------------------------------------------------------*/
+
+void Game::setReverse(bool reversed)
+{
+    this->reversed = reversed;
+}
+
+/*-----------------------------------------------------------*/
+
+void Game::setDeck(Deck *deck)
+{
+    delete this->deck;
+    this->deck = deck;
+}
+
+/*-----------------------------------------------------------*/
+
+void Game::setTable(Table *table)
+{
+    delete this->table;
+    this->table = table;
+}
+
+/*-----------------------------------------------------------*/
+
 Deck * Game::getDeck()
 {
     return deck;
@@ -178,35 +201,6 @@ uint Game::readTurn(Player *player)
 {
     uint action;
 
-    system("clear");
-
-    // Displays game's overall info
-    std::cout << "TABLE CARD: ";
-    table->getTop()->print();
-
-    std::cout << "(Game order: ";
-    if (reversed) {
-        std::cout << ">>)" << std::endl;
-    }
-    else {
-        std::cout << "<<)" << std::endl;
-    }
-
-    if (drawCount > 1) {
-        std::cout << "Draw 2 stack: +" << drawCount << std::endl;
-        std::cout << std::endl;
-    }
-
-    // Displays Player's info
-    std::cout << std::endl;
-    std::cout << "=== " << player->getName() << "'s turn! ===" << std::endl;
-    if (player->handSize() == 1) {
-        std::cout << " -> UNO! You have only one card left!" << std::endl;
-    }
-    std::cout << "Your hand:" << std::endl;
-    player->print();
-
-    std::cout << std::endl;
     std::cout << "Type a number to play the card if possible." << std::endl;
     std::cout << "Type '0' to draw card(s)." << std::endl;
 
@@ -226,8 +220,10 @@ bool Game::validMove(Card *played)
 {
     Card *top = table->getTop();
 
-    if (drawCount > 1 and played->getValue() == DRAW_TWO) {
-        return true;
+    if (drawCount > 1 and
+        played->getValue() == DRAW_TWO and
+        top->getValue() != WILD_FOUR) {
+            return true;
     }
     else if (drawCount == 1 and
             (played->getColor() == top->getColor() or
@@ -355,34 +351,73 @@ Color Game::chooseWild() {
 
 /*-----------------------------------------------------------*/
 
-Game& Game::operator =(Game a)
+Game& Game::operator =(Game game)
 {
+    // Receive Deck from argument
     Deck *deck = new Deck();
-
-    while (a.getDeck()->size() > 0) {
-        deck->insert(a.getDeck()->draw());
+    while (game.getDeck()->size() > 0) {
+        deck->insert(game.getDeck()->draw());
     }
     deck->reverse();
 
+    // Receive Table from argument
     Table *table = new Table();
-    while (a.getTable()->size() > 0) {
-        table->add(a.getTable()->removeEnd());
+    while (game.getTable()->size() > 0) {
+        table->add(game.getTable()->removeEnd());
     }
 
+    // Set Deck and Table
     this->setDeck(deck);
     this->setTable(table);
 
-    this->skipped   = a.checkSkip();
-    this->reversed  = a.checkReverse();
-    this->drawCount = a.getDrawCount();
-    this->gameOver  = a.checkGameOver();
+    // Set other parameters
+    this->skipped   = game.checkSkip();
+    this->reversed  = game.checkReverse();
+    this->drawCount = game.getDrawCount();
+    this->gameOver  = game.checkGameOver();
 
     return *this;
 }
 
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator <<(sf::Packet& packet, Game& game)
+{
+    packet << *game.getDeck() << *game.getTable();
+    packet << game.checkSkip() << game.checkReverse();
+    packet << game.getDrawCount() << game.checkGameOver();
+
+    return packet;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator >>(sf::Packet& packet, Game& game)
+{
+    Deck *deck = new Deck();
+    Table *table = new Table();
+    bool skipped, reversed, gameOver;
+    uint drawCount;
+
+    packet >> *deck;
+    packet >> *table;
+    packet >> skipped >> reversed;
+    packet >> drawCount >> gameOver;
+
+    game.setDeck(deck);
+    game.setTable(table);
+
+    game.setSkip(skipped);
+    game.setReverse(reversed);
+    game.setDrawCount(drawCount);
+    game.setGameOver(gameOver);
+
+    return packet;
+}
+
 /*-----------------------------------------------------------*
  *
- * Returns the minimum between 'a' and 'b'.
+ *  Returns the minimum between 'a' and 'b'.
  *
  */
 static int minimum(int a, int b)

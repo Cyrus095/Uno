@@ -12,10 +12,13 @@
 class Deck
 {
     private:
-        std::deque<Card *> dq;
+        std::deque<Card *> deque;
 
     public:
-        // Initializes the Deck with all possible Cards in Uno
+        /*
+         *  If 'init' is 'true', initializes the Deck with 
+         *  default Cards in Uno.
+         */
         Deck(bool init = false);
 
         // Clears memory used by Deck
@@ -33,11 +36,16 @@ class Deck
         // Inserts a Card at the bottom of the Deck
         void insert(Card *card);
 
-        // Reverses deck order (first card becomes last and so on forth)
+        /*
+         *  Reverses Card order in Deck; first Card becomes last
+         *  and so on forth.
+         */
         void reverse();
-
-        void print();
 
         // Shuffles Cards in the Deck the specified number of times
         void shuffle(uint times);
 };
+
+// Operators for SFML Packets
+sf::Packet& operator <<(sf::Packet& packet, Deck deck);
+sf::Packet& operator >>(sf::Packet& packet, Deck& deck);

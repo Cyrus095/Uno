@@ -5,21 +5,21 @@
 
 Room::~Room()
 {
-    while (not plDeq.empty()) {
-        Player *player = plDeq.front();
-        plDeq.pop_front();
+    while (not deque.empty()) {
+        Player *player = deque.front();
+        deque.pop_front();
         delete player;
     }
 
-    plDeq.clear();
+    deque.clear();
 }
 
 /*-----------------------------------------------------------*/
 
 void Room::print()
 {
-    for (uint i = 0; i < plDeq.size(); i++) {
-        Player *player = plDeq.at(i);
+    for (uint i = 0; i < deque.size(); i++) {
+        Player *player = deque.at(i);
         std::cout << (i+1) << ") " << player->getName();
         std::cout << " [" << player->handSize() << "]";
         std::cout << std::endl;
@@ -30,20 +30,20 @@ void Room::print()
 
 uint Room::size()
 {
-    return plDeq.size();
+    return deque.size();
 }
 
 /*-----------------------------------------------------------*/
 
 bool Room::addPlayer(Player *player)
 {
-    for (uint i = 0; i < plDeq.size(); i++) {
-        if (plDeq.at(i)->getName() == player->getName()) {
+    for (uint i = 0; i < deque.size(); i++) {
+        if (deque.at(i)->getName() == player->getName()) {
             return false;
         }
     }
 
-    plDeq.push_back(player);
+    deque.push_back(player);
     return true;
 }
 
@@ -51,20 +51,20 @@ bool Room::addPlayer(Player *player)
 
 Player * Room::getPlayer(uint position)
 {
-    if (position > plDeq.size()) {
+    if (position > deque.size()) {
         return NULL;
     }
 
-    return plDeq.at(position);
+    return deque.at(position);
 }
 
 /*-----------------------------------------------------------*/
 
 Player * Room::getPlayer(std::string name)
 {
-    for (uint i = 0; i < plDeq.size(); i++) {
-        if (plDeq.at(i)->getName() == name) {
-            return plDeq.at(i);
+    for (uint i = 0; i < deque.size(); i++) {
+        if (deque.at(i)->getName() == name) {
+            return deque.at(i);
         }
     }
 
@@ -75,9 +75,9 @@ Player * Room::getPlayer(std::string name)
 
 Player * Room::getWinner()
 {
-    for (uint i = 0; i < plDeq.size(); i++) {
-        if (plDeq.at(i)->handSize() <= 0) {
-            return plDeq.at(i);
+    for (uint i = 0; i < deque.size(); i++) {
+        if (deque.at(i)->handSize() <= 0) {
+            return deque.at(i);
         }
     }
 
@@ -90,9 +90,9 @@ Player * Room::removePlayer(uint position)
 {
     Player *player = NULL;
 
-    if (position <= plDeq.size()) {
-        player = plDeq.at(position);
-        plDeq.erase(plDeq.begin() + position);
+    if (position <= deque.size()) {
+        player = deque.at(position);
+        deque.erase(deque.begin() + position);
     }
 
     return player;
@@ -100,17 +100,46 @@ Player * Room::removePlayer(uint position)
 
 /*-----------------------------------------------------------*/
 
-Room& Room::operator =(Room a)
+Room& Room::operator =(Room room)
 {
     while (this->size() > 0) {
         this->removePlayer(0);
     }
 
-    while (a.size() > 0) {
-        Player *player = a.getPlayer(0);
+    while (room.size() > 0) {
+        Player *player = room.getPlayer(0);
         this->addPlayer(player);
-        a.removePlayer(0);
+        room.removePlayer(0);
     }
 
     return *this;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator <<(sf::Packet& packet, Room& room)
+{
+    packet << static_cast<sf::Uint32>(room.size());
+
+    for (uint i = 0; i < room.size(); i++) {
+        packet << *room.getPlayer(i);
+    }
+
+    return packet;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator >>(sf::Packet& packet, Room& room)
+{
+    sf::Uint32 size;
+    packet >> size;
+
+    for (sf::Uint32 i = 0; i < size; i++) {
+        Player *player = new Player();
+        packet >> *player;
+        room.addPlayer(player);
+    }
+
+    return packet;
 }

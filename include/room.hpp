@@ -5,14 +5,14 @@
 
 /*-----------------------------------------------------------*
  *
- *  Defines the Room class, responsible for storing all Players.
+ *  Defines the Room class, responsible for storing Players.
  *
  */
 
 class Room
 {
     private:
-        std::deque<Player *> plDeq;
+        std::deque<Player *> deque;
     
     public:
         // Clears memory used by Room
@@ -21,7 +21,10 @@ class Room
         // Returns number of Players in Room
         uint size();
 
-        // Prints names of all Players inside Room
+        /*
+         *  Prints names of Players and their respective
+         *  hand size.
+         */
         void print();
 
         /*
@@ -29,7 +32,6 @@ class Room
          *  Player with the same name. If successful,
          *  returns 'true'.  
          */  
-
         bool addPlayer(Player *player);
 
         /*
@@ -44,7 +46,7 @@ class Room
          */
         Player * getPlayer(std::string name);
 
-        // Returns the first Player found with no cards.
+        // Returns the first Player detected with no Cards
         Player * getWinner();
 
         /*
@@ -53,5 +55,9 @@ class Room
          */
         Player * removePlayer(uint position);
 
-        Room& operator =(Room a);
+        Room& operator =(Room room);
 };
+
+// Operators for SFML Packets
+sf::Packet& operator <<(sf::Packet& packet, Room& room);
+sf::Packet& operator >>(sf::Packet& packet, Room& room);

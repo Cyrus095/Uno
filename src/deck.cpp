@@ -2,7 +2,6 @@
 #include <ctime>           // time()
 #include "deck.hpp"
 #include "randomizer.hpp"
-#include <iostream>
 
 #define INIT_SHUFFLE 1000
 
@@ -16,16 +15,16 @@ Deck::Deck(bool init)
         // Cards from ONE to DRAW_TWO
         for (Value v = ONE; v < WILD; v++) {
             for (Color c = COLOR_BEGIN; c < COLOR_MAX; c++) {
-                dq.push_front(new Card(c, v));
-                dq.push_front(new Card(c, v));
+                deque.push_front(new Card(c, v));
+                deque.push_front(new Card(c, v));
             }
         }
 
         // ZERO, WILD and WILD_FOUR cards
         for (Color c = COLOR_BEGIN; c < COLOR_MAX; c++) {
-            dq.push_front(new Card(c, ZERO));
-            dq.push_front(new Card(COLOR_MAX, WILD));
-            dq.push_front(new Card(COLOR_MAX, WILD_FOUR));
+            deque.push_front(new Card(c, ZERO));
+            deque.push_front(new Card(COLOR_MAX, WILD));
+            deque.push_front(new Card(COLOR_MAX, WILD_FOUR));
         }
 
         shuffle(INIT_SHUFFLE);
@@ -36,20 +35,20 @@ Deck::Deck(bool init)
 
 Deck::~Deck()
 {
-    while (not dq.empty()) {
-        Card *card = dq.front();
-        dq.pop_front();
+    while (not deque.empty()) {
+        Card *card = deque.front();
+        deque.pop_front();
         delete card;
     }
 
-    dq.clear();
+    deque.clear();
 }
 
 /*-----------------------------------------------------------*/
 
 uint Deck::size()
 {
-    return dq.size();
+    return deque.size();
 }
 
 /*-----------------------------------------------------------*/
@@ -58,9 +57,9 @@ Card * Deck::draw()
 {
     Card *card = NULL;
 
-    if (not dq.empty()) {
-        card = dq.front();
-        dq.pop_front();
+    if (not deque.empty()) {
+        card = deque.front();
+        deque.pop_front();
     }
 
     return card;
@@ -70,14 +69,14 @@ Card * Deck::draw()
 
 void Deck::insert(Card *card)
 {
-    dq.push_back(card);
+    deque.push_back(card);
 }
 
 /*-----------------------------------------------------------*/
 
 void Deck::reverse()
 {
-    uint s = dq.size();
+    uint s = deque.size();
 
     for (uint i = 0; i < s; i++) {
         insert(draw());
@@ -86,24 +85,45 @@ void Deck::reverse()
 
 /*-----------------------------------------------------------*/
 
-void Deck::print()
+void Deck::shuffle(uint times)
 {
-    for (uint i = 0; i < dq.size(); i++) {
-        dq.at(i)->print();
+    if (not deque.empty()) {
+        for (uint i = 0; i < times; i++) {
+            int pos = randInt(0, deque.size() - 1);
+
+            Card *card = deque.at(pos);
+            deque.erase(deque.begin() + pos);
+            deque.push_back(card);
+        }
     }
 }
 
 /*-----------------------------------------------------------*/
 
-void Deck::shuffle(uint times)
+sf::Packet& operator <<(sf::Packet& packet, Deck deck)
 {
-    if (not dq.empty()) {
-        for (uint i = 0; i < times; i++) {
-            int pos = randInt(0, dq.size() - 1);
+    packet << static_cast<sf::Uint32>(deck.size());
 
-            Card *card = dq.at(pos);
-            dq.erase(dq.begin() + pos);
-            dq.push_back(card);
-        }
+    while (deck.size() > 0) {
+        packet << *deck.draw();
     }
+
+    return packet;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator >>(sf::Packet& packet, Deck& deck)
+{
+    sf::Uint32 size;
+    packet >> size;
+
+    for (sf::Uint32 i = 0; i < size; i++) {
+        Card *card = new Card();
+        packet >> *card;
+        deck.insert(card);
+    }
+    deck.reverse();
+
+    return packet;
 }

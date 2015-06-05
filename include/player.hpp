@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdlib>   // uint
 #include <deque>
 #include "card.hpp"
 
@@ -17,7 +16,10 @@ class Player
         std::deque<Card *> hand;
 
     public:
-        // Creates an empty Player. Use with caution!
+        /*
+         *  Creates a Player with an empty string as name.
+         *  Use with caution!
+         */
         Player();
 
         // Creates a Player with the specified name
@@ -26,11 +28,11 @@ class Player
         // Clears memory used by Player
         ~Player();
 
-        // Returns the number of cards the Player holds
+        // Returns the number of Cards the Player holds
         uint handSize();
 
         // Prints all Cards owned by Player
-        void print();
+        void printHand();
 
         // Adds the specified Card to the Player's hand
         void addCard(Card *card);
@@ -53,3 +55,7 @@ class Player
         // Returns the Player's name
         std::string getName();
 };
+
+// Operators for SFML Packets
+sf::Packet& operator <<(sf::Packet& packet, Player& player);
+sf::Packet& operator >>(sf::Packet& packet, Player& player);

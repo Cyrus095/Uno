@@ -2,6 +2,7 @@
 
 #include "color.hpp"
 #include "value.hpp"
+#include "SFML/Network.hpp"
 
 /*-----------------------------------------------------------*
  *
@@ -16,7 +17,10 @@ class Card
         Value value;
 
     public:
-        // Creates an empty card. Use with caution!
+        /*
+         *  Creates an empty Card with COLOR_MAX and VALUE_MAX
+         *  attributes. Use with caution!
+         */
         Card();
 
         // Creates a Card with the specified parameters
@@ -37,3 +41,7 @@ class Card
         // Returns the Card's Value
         Value getValue();
 };
+
+// Operators for SFML Packets
+sf::Packet& operator <<(sf::Packet& packet, Card& card);
+sf::Packet& operator >>(sf::Packet& packet, Card& card);

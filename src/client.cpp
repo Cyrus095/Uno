@@ -1,4 +1,4 @@
-#include <iostream>    // std::cerr
+#include <iostream>    // std::cout, std::cerr
 #include "client.hpp"
 
 /*-----------------------------------------------------------*/
@@ -12,8 +12,14 @@ Client::Client(std::string name, sf::IpAddress ip, unsigned short port)
     // Attempt to connect to server
     if (server.connect(ip, port) != sf::Socket::Done) {
         std::cerr << "Couldn't connect to server!" << std::endl;
+        std::cerr << "IP = " << ip << std::endl;
+        std::cerr << "Port = " << port << std::endl;
         exit(-10);
     }
+
+    std::cout << "Connected to server!" << std::endl;
+    std::cout << "IP = " << ip << std::endl;
+    std::cout << "Port = " << port << std::endl;
 
     run();
 }
@@ -67,7 +73,6 @@ bool Client::receiveData()
             delete room;
             game = svGame;
             room = svRoom;
-            std::cout << "Data received!" << std::endl;
             display();
         }
         else {
@@ -101,10 +106,8 @@ void Client::clientTurn()
 
     game->play(player);
     data << *game << *room;
-    if (server.send(data) == sf::Socket::Done) {
-        std::cout << "Data sent to server!" << std::endl;
-    }
-    else {
+
+    if (server.send(data) != sf::Socket::Done) {
         std::cout << "Connection lost!" << std::endl;
         exit(321);
     }
@@ -122,6 +125,8 @@ void Client::display()
         exit(30);
     }
 
+    system("clear");
     room->print();
-    player->print();
+    game->print();
+    player->printHand();
 }

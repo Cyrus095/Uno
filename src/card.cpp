@@ -21,7 +21,10 @@ Card::Card(Color color, Value value)
 
 void Card::print()
 {
-    std::cout << colorToStr(color) << " " << valueToStr(value);
+    std::string space;
+
+    color == COLOR_MAX ? space = "" : space = " ";
+    std::cout << colorToStr(color) << space << valueToStr(value);
     std::cout << std::endl;
 }
 
@@ -51,4 +54,24 @@ Color Card::getColor()
 Value Card::getValue()
 {
     return value;
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator <<(sf::Packet& packet, Card& card)
+{
+    return packet << (uint) card.getColor() << (uint) card.getValue();
+}
+
+/*-----------------------------------------------------------*/
+
+sf::Packet& operator >>(sf::Packet& packet, Card& card)
+{
+    uint color, value;
+
+    packet >> color >> value;
+    card.setColor((Color) color);
+    card.setValue((Value) value);
+
+    return packet;
 }
