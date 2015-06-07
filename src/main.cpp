@@ -22,11 +22,10 @@ int main(int argc, char const *argv[])
 
     if (strcmp(argv[1], "-l") == 0) {
         uint numPlayers = atoi(argv[2]);
-        if (numPlayers < 2 or numPlayers > 12) {
+        if (numPlayers < 1 or numPlayers > 11) {
             usage(argv[0]);
         }
-        Offline offline(numPlayers);
-        offline.run();
+        Offline offline(nameInput(), numPlayers);
     }
 
     else if (strcmp(argv[1], "-c") == 0) {
@@ -55,10 +54,12 @@ int main(int argc, char const *argv[])
 
 static std::string nameInput()
 {
-    std::string name;
+    std::string name = "";
 
     std::cout << "Type in your name: ";
-    std::cin  >> name;
+    do {
+        std::cin >> name;
+    } while (name == "");
 
     return name;
 }

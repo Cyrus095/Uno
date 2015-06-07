@@ -4,38 +4,59 @@
 
 /*-----------------------------------------------------------*/
 
-Offline::Offline(uint numPlayers)
+Offline::Offline(std::string name, uint numBot)
 {
-    for (uint i = 0; i < numPlayers; i++) {
-        Player *player = new Player("");
-        game.initPlayer(player);
-        room.addPlayer(player);
+    game = new Game(true);
+    room = new Room();
+
+    Player *myself = new Player(name);
+    game->initPlayer(myself);
+    room->addPlayer(myself);
+
+    for (uint i = 0; i < numBot; i++) {
+        Player *player = new Player("Bot " + std::to_string(i+1));
+        game->initPlayer(player);
+        room->addPlayer(player);
     }
 
-    turnCounter = randInt(0, room.size());
+    turnCounter = randInt(0, room->size());
+    run();
+}
+
+/*-----------------------------------------------------------*/
+
+Offline::~Offline()
+{
+    delete game;
+    delete room;
 }
 
 /*-----------------------------------------------------------*/
 
 void Offline::run()
 {
-    // Possibly, create game window here
-    updateGame();
-}
-
-/*-----------------------------------------------------------*/
-
-void Offline::updateGame()
-{
     Player *current = NULL;
 
-    while (not game.checkGameOver()) {
-        current = room.getPlayer(turnCounter);
-        game.play(current);
-        (game.checkReverse() ? turnCounter ++ : turnCounter--);
-        turnCounter %= room.size();
+    while (not game->checkGameOver()) {
+        display();
+        current = room->getPlayer(turnCounter);
+        game->play(current);
+        (game->checkReverse() ? turnCounter ++ : turnCounter--);
+        turnCounter %= room->size();
     }
 
     std::cout << "### " << current->getName() << " wins! ###";
     std::cout << std::endl;
+}
+
+/*-----------------------------------------------------------*/
+
+void Offline::display()
+{
+    Player *player = room->getPlayer(turnCounter);
+
+    system("clear");
+    room->print();
+    game->print();
+    player->printHand();
 }
